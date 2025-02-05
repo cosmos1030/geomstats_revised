@@ -41,15 +41,16 @@ class Circle:
     def add_points(self, points, tol=1e-3):
         """Add points and force projection to sphere if slightly off."""
         points = gs.array(points)
-        norms = gs.linalg.norm(points, axis=1, keepdims=True)
+        norms = gs.linalg.norm(points, axis=1, keepdims=True)  # (N, 1) 형태
     
-        # 벡터 크기가 1과의 차이가 tol 이하라면 강제로 정규화
+        # 벡터 크기가 1과 tol 이내라면 정규화
         close_to_sphere = gs.abs(norms - 1) < tol
-        points[close_to_sphere] = points[close_to_sphere] / norms[close_to_sphere]
+        points = gs.where(close_to_sphere, points / norms, points)  # 정규화 적용
 
         if not isinstance(points, list):
             points = list(points)
         self.points.extend(points)
+
 
 
     def draw(self, ax, **plot_kwargs):
