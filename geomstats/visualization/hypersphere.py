@@ -38,16 +38,19 @@ class Circle:
         )
         return ax
 
-    def add_points(self, points, tol=1e-6):  # 허용 오차 추가
-        """Add points with a tolerance."""
+    def add_points(self, points, tol=1e-3):
+        """Add points and force projection to sphere if slightly off."""
         points = gs.array(points)
-        norms = gs.linalg.norm(points, axis=1)
-        # 벡터의 크기가 1과의 차이가 tol 이하인 경우는 허용
-        if not gs.all(gs.abs(norms - 1) < tol):
-            raise ValueError("Some points do not belong to the sphere within tolerance.")
+        norms = gs.linalg.norm(points, axis=1, keepdims=True)
+    
+        # 벡터 크기가 1과의 차이가 tol 이하라면 강제로 정규화
+        close_to_sphere = gs.abs(norms - 1) < tol
+        points[close_to_sphere] = points[close_to_sphere] / norms[close_to_sphere]
+
         if not isinstance(points, list):
             points = list(points)
         self.points.extend(points)
+
 
     def draw(self, ax, **plot_kwargs):
         """Plot circle shape."""
@@ -116,16 +119,19 @@ class Sphere:
         return ax
 
 
-    def add_points(self, points, tol=1e-6):  # 허용 오차 추가
-        """Add points with a tolerance."""
+    def add_points(self, points, tol=1e-3):
+        """Add points and force projection to sphere if slightly off."""
         points = gs.array(points)
-        norms = gs.linalg.norm(points, axis=1)
-        # 벡터의 크기가 1과의 차이가 tol 이하인 경우는 허용
-        if not gs.all(gs.abs(norms - 1) < tol):
-            raise ValueError("Some points do not belong to the sphere within tolerance.")
+        norms = gs.linalg.norm(points, axis=1, keepdims=True)
+    
+        # 벡터 크기가 1과의 차이가 tol 이하라면 강제로 정규화
+        close_to_sphere = gs.abs(norms - 1) < tol
+        points[close_to_sphere] = points[close_to_sphere] / norms[close_to_sphere]
+
         if not isinstance(points, list):
             points = list(points)
         self.points.extend(points)
+
 
     def draw(self, ax, **scatter_kwargs):
         """Plot sphere shape."""
