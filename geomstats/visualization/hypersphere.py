@@ -43,17 +43,17 @@ class Circle:
         points = gs.array(points)
         norms = gs.linalg.norm(points, axis=1, keepdims=True)  # (N, 1) 형태 유지
     
-        # 벡터 크기가 1과 tol 이내라면 정규화
-        close_to_sphere = gs.abs(norms - 1) < tol  # (N, 1)
-        close_to_sphere = gs.expand_dims(close_to_sphere, axis=1)  # (N, 1)
-        close_to_sphere = gs.tile(close_to_sphere, (1, 3))  # (N, 3)
+        # 벡터를 강제로 정규화하여 구 위에 투영
+        points = points / norms
 
-        # 벡터를 정규화하여 강제로 구 위에 위치시키기
-        points = gs.where(close_to_sphere, points / norms, points)
+        # 작은 수치적 오차 방지: norms가 너무 작은 경우 대비
+        norms = gs.linalg.norm(points, axis=1, keepdims=True)
+        points = gs.where(norms < tol, gs.zeros_like(points), points)  # 극단적으로 작은 벡터 제거
 
         if not isinstance(points, list):
             points = list(points)
         self.points.extend(points)
+
 
 
 
@@ -130,13 +130,12 @@ class Sphere:
         points = gs.array(points)
         norms = gs.linalg.norm(points, axis=1, keepdims=True)  # (N, 1) 형태 유지
     
-        # 벡터 크기가 1과 tol 이내라면 정규화
-        close_to_sphere = gs.abs(norms - 1) < tol  # (N, 1)
-        close_to_sphere = gs.expand_dims(close_to_sphere, axis=1)  # (N, 1)
-        close_to_sphere = gs.tile(close_to_sphere, (1, 3))  # (N, 3)
+        # 벡터를 강제로 정규화하여 구 위에 투영
+        points = points / norms
 
-        # 벡터를 정규화하여 강제로 구 위에 위치시키기
-        points = gs.where(close_to_sphere, points / norms, points)
+        # 작은 수치적 오차 방지: norms가 너무 작은 경우 대비
+        norms = gs.linalg.norm(points, axis=1, keepdims=True)
+        points = gs.where(norms < tol, gs.zeros_like(points), points)  # 극단적으로 작은 벡터 제거
 
         if not isinstance(points, list):
             points = list(points)
