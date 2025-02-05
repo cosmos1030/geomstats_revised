@@ -41,15 +41,20 @@ class Circle:
     def add_points(self, points, tol=1e-3):
         """Add points and force projection to sphere if slightly off."""
         points = gs.array(points)
-        norms = gs.linalg.norm(points, axis=1, keepdims=True)  # (N, 1) 형태
+        norms = gs.linalg.norm(points, axis=1, keepdims=True)  # (N, 1) 형태 유지
     
         # 벡터 크기가 1과 tol 이내라면 정규화
-        close_to_sphere = gs.abs(norms - 1) < tol
-        points = gs.where(close_to_sphere, points / norms, points)  # 정규화 적용
+        close_to_sphere = gs.abs(norms - 1) < tol  # (N, 1)
+        close_to_sphere = gs.expand_dims(close_to_sphere, axis=1)  # (N, 1)
+        close_to_sphere = gs.tile(close_to_sphere, (1, 3))  # (N, 3)
+
+        # 벡터를 정규화하여 강제로 구 위에 위치시키기
+        points = gs.where(close_to_sphere, points / norms, points)
 
         if not isinstance(points, list):
             points = list(points)
         self.points.extend(points)
+
 
 
 
@@ -123,11 +128,15 @@ class Sphere:
     def add_points(self, points, tol=1e-3):
         """Add points and force projection to sphere if slightly off."""
         points = gs.array(points)
-        norms = gs.linalg.norm(points, axis=1, keepdims=True)
+        norms = gs.linalg.norm(points, axis=1, keepdims=True)  # (N, 1) 형태 유지
     
-        # 벡터 크기가 1과의 차이가 tol 이하라면 강제로 정규화
-        close_to_sphere = gs.abs(norms - 1) < tol
-        points[close_to_sphere] = points[close_to_sphere] / norms[close_to_sphere]
+        # 벡터 크기가 1과 tol 이내라면 정규화
+        close_to_sphere = gs.abs(norms - 1) < tol  # (N, 1)
+        close_to_sphere = gs.expand_dims(close_to_sphere, axis=1)  # (N, 1)
+        close_to_sphere = gs.tile(close_to_sphere, (1, 3))  # (N, 3)
+
+        # 벡터를 정규화하여 강제로 구 위에 위치시키기
+        points = gs.where(close_to_sphere, points / norms, points)
 
         if not isinstance(points, list):
             points = list(points)
