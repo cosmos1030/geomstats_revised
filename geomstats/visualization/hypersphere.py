@@ -38,10 +38,13 @@ class Circle:
         )
         return ax
 
-    def add_points(self, points):
-        """Add points."""
-        if not gs.all(S1.belongs(points)):
-            raise ValueError("Points do  not belong to the circle.")
+    def add_points(self, points, tol=1e-6):  # 허용 오차 추가
+        """Add points with a tolerance."""
+        points = gs.array(points)
+        norms = gs.linalg.norm(points, axis=1)
+        # 벡터의 크기가 1과의 차이가 tol 이하인 경우는 허용
+        if not gs.all(gs.abs(norms - 1) < tol):
+            raise ValueError("Some points do not belong to the sphere within tolerance.")
         if not isinstance(points, list):
             points = list(points)
         self.points.extend(points)
@@ -112,10 +115,14 @@ class Sphere:
         ax.set_box_aspect([1.0, 1.0, 1.0])
         return ax
 
-    def add_points(self, points):
-        """Add points."""
-        if not gs.all(S2.belongs(points)):
-            raise ValueError("Points do not belong to the sphere.")
+
+    def add_points(self, points, tol=1e-6):  # 허용 오차 추가
+        """Add points with a tolerance."""
+        points = gs.array(points)
+        norms = gs.linalg.norm(points, axis=1)
+        # 벡터의 크기가 1과의 차이가 tol 이하인 경우는 허용
+        if not gs.all(gs.abs(norms - 1) < tol):
+            raise ValueError("Some points do not belong to the sphere within tolerance.")
         if not isinstance(points, list):
             points = list(points)
         self.points.extend(points)
